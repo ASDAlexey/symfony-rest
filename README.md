@@ -1,1 +1,4 @@
-# symfony-rest
+symfony
+=======
+
+A Symfony project
