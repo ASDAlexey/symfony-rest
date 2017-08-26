@@ -28,5 +28,6 @@ class TokenController extends BaseController {
         //        $token = $this->get('lexik_jwt_authentication.encoder.abstract')->encode(['username' => $user->getUsername()]);
         //
         //        return new JsonResponse(['token' => $token]);
+        return new JsonResponse(['token' => 'ssww']);
     }
 }
