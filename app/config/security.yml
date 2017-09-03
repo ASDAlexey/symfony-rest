@@ -7,31 +7,37 @@ security:
             entity: { class: AppBundle:User }
 
     firewalls:
-        api:
-          pattern: ^/api/
+        main:
+          pattern: ^/
           anonymous: true
           stateless: true
 
-          guard:
-              authenticator:
-                - jwt_token_authenticator
+#        api:
+#          pattern: ^/api/
+#          anonymous: true
+#          stateless: true
 
-        main:
-            pattern: ^/
-            anonymous: true
-            form_login:
-                # The route name that the login form submits to
-                check_path: security_login_check
-                login_path: security_login_form
+#          guard:
+#              authenticator:
+#                - jwt_token_authenticator
 
-            logout:
-                # The route name the user can go to in order to logout
-                path: security_logout
+#        main:
+#            pattern: ^/
+#            anonymous: true
+#            stateless: true
+#            form_login:
+#                # The route name that the login form submits to
+#                check_path: security_login_check
+#                login_path: security_login_form
+#
+#            logout:
+#                # The route name the user can go to in order to logout
+#                path: security_logout
 
-    access_control:
-        - { path: ^/_wdt|_profiler, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/sign-up, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/sign-in, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        # allow anonymous API - if auth is needed, it's handled in the controller
-        - { path: ^/api, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+#    access_control:
+#        - { path: ^/_wdt|_profiler, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/sign-up, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/sign-in, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        # allow anonymous API - if auth is needed, it's handled in the controller
+#        - { path: ^/api, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

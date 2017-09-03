@@ -29,6 +29,6 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
-    jwt_token_authenticator:
-          class: AppBundle\Sequrity\JwtTokenAuthenticator
-          autowire: true
+#    jwt_token_authenticator:
+#          class: AppBundle\Sequrity\JwtTokenAuthenticator
+#          autowire: true
