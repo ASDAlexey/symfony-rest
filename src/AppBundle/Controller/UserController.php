@@ -20,7 +20,7 @@ class UserController extends BaseController {
 
     $user = new User();
     $user->setEmail($email);
-    $user->setUsername('Alexey');
+    $user->setUsername($username);
     $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $plainPassword);
     $user->setPassword($encodedPassword);
 
@@ -29,7 +29,8 @@ class UserController extends BaseController {
     $em->flush();
 
     $token = $this->get('lexik_jwt_authentication.encoder')->encode([
-      'username' => 'Alexey',
+      'id' => $user->getId(),
+      'email' => $user->getEmail(),
       'exp' => time() + 3600 // 1 hour expiration
     ]);
 
