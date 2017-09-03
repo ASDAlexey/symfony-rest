@@ -12,14 +12,14 @@ security:
           anonymous: true
           stateless: true
 
-#        api:
-#          pattern: ^/api/
-#          anonymous: true
-#          stateless: true
+        api:
+          pattern: ^/api/
+          anonymous: true
+          stateless: true
 
-#          guard:
-#              authenticator:
-#                - jwt_token_authenticator
+          guard:
+              authenticator:
+                - jwt_token_authenticator
 
 #        main:
 #            pattern: ^/
@@ -34,10 +34,10 @@ security:
 #                # The route name the user can go to in order to logout
 #                path: security_logout
 
-#    access_control:
-#        - { path: ^/_wdt|_profiler, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        - { path: ^/sign-up, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        - { path: ^/sign-in, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        # allow anonymous API - if auth is needed, it's handled in the controller
-#        - { path: ^/api, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+    access_control:
+        - { path: ^/_wdt|_profiler, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/sign-up, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/sign-in, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # allow anonymous API - if auth is needed, it's handled in the controller
+        - { path: ^/api, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

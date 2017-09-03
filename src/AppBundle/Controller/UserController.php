@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\User;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -41,6 +42,21 @@ class UserController extends BaseController {
         'password' => $user->getPassword(),
       ],
       'meta' => ['token' => $token],
+    ], 200);
+
+    return $response;
+  }
+
+  /**
+   * @Route("/api/list", name="user_list")
+   * @Method("GET")
+   */
+  public function listAction(Request $request) {
+    $response = $this->createApiResponse([
+      'data' => [
+        'name' => 'Alexey',
+      ],
+      'meta' => null,
     ], 200);
 
     return $response;
