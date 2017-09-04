@@ -3,7 +3,6 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -11,7 +10,7 @@ use AppBundle\Controller\BaseController;
 
 class UserController extends BaseController {
   /**
-   * @Route("/sign-up", name="user_sign_up")
+   * @Route("/api/sign-up", name="user_login")
    * @Method("POST")
    */
   public function signUpAction(Request $request) {
@@ -31,32 +30,18 @@ class UserController extends BaseController {
 
     $token = $this->get('lexik_jwt_authentication.encoder')->encode([
       'id' => $user->getId(),
-      'email' => $user->getEmail(),
+      'username' => $user->getEmail(),
       'exp' => time() + 3600 // 1 hour expiration
     ]);
 
     $response = $this->createApiResponse([
       'data' => [
+        'id' => $user->getId(),
         'email' => $user->getEmail(),
         'username' => $user->getUsername(),
         'password' => $user->getPassword(),
       ],
       'meta' => ['token' => $token],
-    ], 200);
-
-    return $response;
-  }
-
-  /**
-   * @Route("/api/list", name="user_list")
-   * @Method("GET")
-   */
-  public function listAction(Request $request) {
-    $response = $this->createApiResponse([
-      'data' => [
-        'name' => 'Alexey',
-      ],
-      'meta' => null,
     ], 200);
 
     return $response;

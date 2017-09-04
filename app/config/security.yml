@@ -4,40 +4,23 @@ security:
 
     providers:
         database_users:
-            entity: { class: AppBundle:User }
+            entity: { class: AppBundle:User, property: email }
 
     firewalls:
-        main:
-          pattern: ^/
-          anonymous: true
-          stateless: true
-
         api:
-          pattern: ^/api/
-          anonymous: true
+          pattern:   ^/api
+          provider:  database_users
           stateless: true
-
+          anonymous: true
           guard:
-              authenticator:
-                - jwt_token_authenticator
-
-#        main:
-#            pattern: ^/
-#            anonymous: true
-#            stateless: true
-#            form_login:
-#                # The route name that the login form submits to
-#                check_path: security_login_check
-#                login_path: security_login_form
-#
-#            logout:
-#                # The route name the user can go to in order to logout
-#                path: security_logout
+              authenticators:
+                  - lexik_jwt_authentication.jwt_token_authenticator
+          logout:
+              path:   /api/logout
 
     access_control:
         - { path: ^/_wdt|_profiler, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/sign-up, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/sign-in, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        # allow anonymous API - if auth is needed, it's handled in the controller
-        - { path: ^/api, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/sign-up, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/logout, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
