@@ -11,9 +11,17 @@ use AppBundle\Controller\BaseController;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends BaseController {
+
   /**
    * @Route("/api/sign-up", name="user_sign_up")
    * @Method("POST")
+   * {
+   *   "email":"asdalexey@yandex.ru",
+   *     "plainPassword":{
+   *     "first":"121314",
+   *     "second":"121314"
+   *     }
+   *   }
    */
   public function signUpAction(Request $request) {
     $form = $this->createForm(UserRegistrationForm::class);
