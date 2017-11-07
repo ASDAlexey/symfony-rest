@@ -3,45 +3,30 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\User;
-use AppBundle\Form\UserRegistrationForm;
+use AppBundle\Form\LoginForm;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use AppBundle\Controller\BaseController;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class UserController extends BaseController {
+class SecurityController extends BaseController {
 
   /**
-   * @Route("/api/sign-up", name="user_sign_up")
+   * @Route("/api/login", name="security_login")
    * @Method("POST")
    * {
    *   "email":"asdalexey@yandex.ru",
-   *   "plainPassword":{
-   *      "first":"121314",
-   *      "second":"121314"
-   *    }
-   * }
+   *   "password": "121314"
    */
-  public function signUpAction(Request $request) {
-    $form = $this->createForm(UserRegistrationForm::class);
+  public function login(Request $request) {
+    $form = $this->createForm(LoginForm::class);
     $form->submit($request->request->all());
 
     if ($form->isValid()) {
       $formData = $form->getData();
 
-      /**
-       * @var User $user
-       */
-      $user = new User();
-      $user->setEmail($formData->getEmail());
-      $user->setPassword($formData->getPlainPassword());
-      $user->setRoles(['ROLE_ADMIN']);
-      $user->setCreatedAt();
-
       $em = $this->getDoctrine()->getManager();
-      $em->persist($user);
-      $em->flush();
+      $user = $em->getRepository('AppBundle:User')->findOneBy(['email' => $formData['email']]);
+
 
       $token = $this->get('lexik_jwt_authentication.encoder')->encode([
         'id' => $user->getId(),

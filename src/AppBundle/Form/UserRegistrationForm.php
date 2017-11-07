@@ -12,7 +12,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserRegistrationForm extends AbstractType {
   public function buildForm(FormBuilderInterface $builder, array $options) {
-    $builder->add('email', EmailType::class)
+    $builder
+      ->add('email', EmailType::class)
       ->add('plainPassword', RepeatedType::class, [
         'type' => PasswordType::class,
       ]);
