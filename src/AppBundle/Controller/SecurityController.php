@@ -2,7 +2,6 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\User;
 use AppBundle\Form\LoginForm;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -26,20 +25,25 @@ class SecurityController extends BaseController {
 
       $em = $this->getDoctrine()->getManager();
       $user = $em->getRepository('AppBundle:User')->findOneBy(['email' => $formData['email']]);
+      if ($user) {
 
 
-      $token = $this->get('lexik_jwt_authentication.encoder')->encode([
-        'id' => $user->getId(),
-        'username' => $user->getEmail(),
-        'exp' => time() + 3600 * 24 * 2 // 2 days expiration
-      ]);
+        $token = $this->get('lexik_jwt_authentication.encoder')->encode([
+          'id' => $user->getId(),
+          'username' => $user->getEmail(),
+          'exp' => time() + 3600 * 24 * 2 // 2 days expiration
+        ]);
 
-      $responseData = ["data" => $user, "meta" => ["token" => $token]];
+        $responseData = ["data" => $user, "meta" => ["token" => $token]];
+        return $this->createApiResponse($responseData);
+      } else {
+        $responseData = ["meta" => ["errors" => 'Unauthorized']];
+        return $this->createApiResponse($responseData, 401);
+      }
     } else {
       $errors = $form->getErrors()->getForm();
       $responseData = ["errors" => $errors];
+      return $this->createApiResponse($responseData, 400);
     }
-
-    return $this->createApiResponse($responseData);
   }
 }
