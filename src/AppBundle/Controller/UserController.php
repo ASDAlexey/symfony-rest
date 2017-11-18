@@ -35,7 +35,8 @@ class UserController extends BaseController {
        */
       $user = new User();
       $user->setEmail($formData->getEmail());
-      $user->setPassword($formData->getPlainPassword());
+      $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $formData->getPlainPassword());
+      $user->setPassword($encodedPassword);
       $user->setRoles(['ROLE_ADMIN']);
       $user->setCreatedAt();
 
