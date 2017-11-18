@@ -26,7 +26,11 @@ class SecurityController extends BaseController {
       $em = $this->getDoctrine()->getManager();
       $user = $em->getRepository('AppBundle:User')->findOneBy(['email' => $formData['email']]);
       if ($user) {
-
+        $isValid = $this->get('security.password_encoder')->isPasswordValid($user, $formData['password']);
+        if (!$isValid) {
+          $responseData = ["meta" => ["errors" => 'Unauthorized']];
+          return $this->createApiResponse($responseData, 401);
+        }
 
         $token = $this->get('lexik_jwt_authentication.encoder')->encode([
           'id' => $user->getId(),
@@ -34,7 +38,15 @@ class SecurityController extends BaseController {
           'exp' => time() + 3600 * 24 * 2 // 2 days expiration
         ]);
 
-        $responseData = ["data" => $user, "meta" => ["token" => $token]];
+        $responseData = [
+          "data" => [
+            "id" => $user->getId(),
+            "email" => $user->getEmail(),
+            "createdAt" => $user->getCreatedAt(),
+            "updatedAt" => $user->getUpdatedAt(),
+          ],
+          "meta" => ["token" => $token]
+        ];
         return $this->createApiResponse($responseData);
       } else {
         $responseData = ["meta" => ["errors" => 'Unauthorized']];
