@@ -9,7 +9,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProductFormType extends AbstractType {
   public function buildForm(FormBuilderInterface $builder, array $options) {
-    $builder->add('name')->add('price')->add('description')->add('color')->add('year')->add('image', FileType::class);
+    $builder
+      ->add('name')
+      ->add('price')
+      ->add('description')
+      ->add('color')
+      ->add('year')
+      ->add('image', FileType::class);
   }
 
   public function configureOptions(OptionsResolver $resolver) {
