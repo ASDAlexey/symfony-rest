@@ -46,12 +46,15 @@ class ProductController extends BaseController {
       $product->setDescription($formData->getDescription());
       $product->setColor($formData->getColor());
       $product->setYear($formData->getYear());
+
       // $file stores the uploaded file
-      //      $file = $product->getImage();
-      //      $fileName = $this->get('app.image')->move($file);
-      //      // Update the 'avatar' property to store file name
-      //      // instead of its contents
-      //      $product->setImage($fileName);
+      $file = $product->getImage();
+      if ($file) {
+        $fileName = $this->get('app.image')->move($file);
+
+        // update the 'image' property to store file name
+        $product->setImage($fileName);
+      }
 
       $product->setUser($this->getUser());
       $product->setCreatedAt();

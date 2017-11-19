@@ -35,3 +35,7 @@ services:
 
     api.response_factory:
         class: AppBundle\Api\ResponseFactory
+
+    app.image:
+          class: AppBundle\Service\ImageService
+          arguments: [%product_image%]
