@@ -8,6 +8,7 @@ use AppBundle\Form\ProductFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
 class ProductController extends BaseController {
   /**
@@ -26,7 +27,7 @@ class ProductController extends BaseController {
   }
 
   /**
-   * @Route("/api/products", name="product_new")
+   * @Rest\Post("/api/products")
    */
   public function newAction(Request $request) {
     $form = $this->createForm(ProductFormType::class);

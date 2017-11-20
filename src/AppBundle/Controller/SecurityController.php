@@ -4,14 +4,12 @@ namespace AppBundle\Controller;
 
 use AppBundle\Form\LoginForm;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
 class SecurityController extends BaseController {
 
   /**
-   * @Route("/api/login", name="security_login")
-   * @Method("POST")
+   * @Rest\Post("/api/login")
    * {
    *   "email":"asdalexey@yandex.ru",
    *   "password": "121314"

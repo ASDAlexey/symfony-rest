@@ -5,16 +5,12 @@ namespace AppBundle\Controller;
 use AppBundle\Entity\User;
 use AppBundle\Form\UserRegistrationForm;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use AppBundle\Controller\BaseController;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
 class UserController extends BaseController {
 
   /**
-   * @Route("/api/sign-up", name="user_sign_up")
-   * @Method("POST")
+   * @Rest\Post("/api/sign-up")
    * {
    *   "email":"asdalexey@yandex.ru",
    *   "plainPassword":{
