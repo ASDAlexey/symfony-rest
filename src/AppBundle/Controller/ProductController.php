@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Product;
+use AppBundle\Entity\User;
 use AppBundle\Form\ProductFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -33,9 +34,6 @@ class ProductController extends BaseController {
 
     if ($form->isValid()) {
       $formData = $form->getData();
-      //      // Update the 'avatar' property to store file name
-      //      // instead of its contents
-      //      $product->setImage($fileName);
 
       /**
        * @var Product $product
@@ -46,6 +44,9 @@ class ProductController extends BaseController {
       $product->setDescription($formData->getDescription());
       $product->setColor($formData->getColor());
       $product->setYear($formData->getYear());
+      if ($request->files->get('image')) {
+        $product->setImage($request->files->get('image'));
+      }
 
       // $file stores the uploaded file
       $file = $product->getImage();
@@ -63,8 +64,30 @@ class ProductController extends BaseController {
       $em->persist($product);
       $em->flush();
 
+      /**
+       * @var User $user
+       */
+      $user = $product->getUser();
+
       $responseData = [
-        "data" => $product,
+        "data" => [
+          "id" => $product->getId(),
+          "name" => $product->getName(),
+          "price" => $product->getPrice(),
+          "description" => $product->getDescription(),
+          "color" => $product->getColor(),
+          "year" => $product->getYear(),
+          "image" => $product->getImage(),
+          "user" => [
+            "id" => $user->getId(),
+            "email" => $user->getEmail(),
+            "roles" => $user->getRoles(),
+            "createdAt" => $user->getCreatedAt(),
+            "updatedAt" => $user->getUpdatedAt(),
+          ],
+          "createdAt" => $product->getCreatedAt(),
+          "updatedAt" => $product->getUpdatedAt(),
+        ],
       ];
       return $this->createApiResponse($responseData);
     } else {
@@ -72,32 +95,5 @@ class ProductController extends BaseController {
       $responseData = ["errors" => $errors];
       return $this->createApiResponse($responseData, 400);
     }
-    //    // only handles data on POST
-    //    $form->handleRequest($request);
-    //
-    //    if ($form->isSubmitted() && $form->isValid()) {
-    //      $product = $form->getData();
-    //
-    //      // $file stores the uploaded file
-    //      $file = $product->getImage();
-    //
-    //      $fileName = $this->get('app.image')->move($file);
-    //
-    //      // Update the 'avatar' property to store file name
-    //      // instead of its contents
-    //      $product->setImage($fileName);
-    //
-    //      $product->setUser($this->getUser());
-    //
-    //      $em = $this->getDoctrine()->getManager();
-    //      $em->persist($product);
-    //      $em->flush();
-    //
-    //      $this->addFlash('success', 'Product created');
-    //
-    //      return $this->redirectToRoute('product_list');
-    //    }
-    //
-    //    return $this->render('product/edit.html.twig', ['productForm' => $form->createView(), 'imageName' => null]);
   }
 }
