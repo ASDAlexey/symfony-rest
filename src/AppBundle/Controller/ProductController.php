@@ -27,6 +27,44 @@ class ProductController extends BaseController {
   }
 
   /**
+   * @Rest\Get("/api/products/{id}")
+   */
+  public function showAction($id) {
+    $em = $this->getDoctrine()->getManager();
+    /**
+     * @var Product $product
+     */
+    $product = $em->getRepository('AppBundle:Product')->findOneBy(['id' => $id]);
+
+    /**
+     * @var User $user
+     */
+    $user = $product->getUser();
+
+    $responseData = [
+      "data" => [
+        "id" => $product->getId(),
+        "name" => $product->getName(),
+        "price" => $product->getPrice(),
+        "description" => $product->getDescription(),
+        "color" => $product->getColor(),
+        "year" => $product->getYear(),
+        "image" => $product->getImage(),
+        "user" => [
+          "id" => $user->getId(),
+          "email" => $user->getEmail(),
+          "roles" => $user->getRoles(),
+          "createdAt" => $user->getCreatedAt(),
+          "updatedAt" => $user->getUpdatedAt(),
+        ],
+        "createdAt" => $product->getCreatedAt(),
+        "updatedAt" => $product->getUpdatedAt(),
+      ],
+    ];
+    return $this->createApiResponse($responseData);
+  }
+
+  /**
    * @Rest\Post("/api/products")
    */
   public function newAction(Request $request) {
@@ -46,6 +84,78 @@ class ProductController extends BaseController {
       $product->setColor($formData->getColor());
       $product->setYear($formData->getYear());
       if ($request->files->get('image')) {
+        $product->setImage($request->files->get('image'));
+      }
+
+      // $file stores the uploaded file
+      $file = $product->getImage();
+      if ($file) {
+        $fileName = $this->get('app.image')->move($file);
+
+        // update the 'image' property to store file name
+        $product->setImage($fileName);
+      }
+
+      $product->setUser($this->getUser());
+      $product->setCreatedAt();
+
+      $em = $this->getDoctrine()->getManager();
+      $em->persist($product);
+      $em->flush();
+
+      /**
+       * @var User $user
+       */
+      $user = $product->getUser();
+
+      $responseData = [
+        "data" => [
+          "id" => $product->getId(),
+          "name" => $product->getName(),
+          "price" => $product->getPrice(),
+          "description" => $product->getDescription(),
+          "color" => $product->getColor(),
+          "year" => $product->getYear(),
+          "image" => $product->getImage(),
+          "user" => [
+            "id" => $user->getId(),
+            "email" => $user->getEmail(),
+            "roles" => $user->getRoles(),
+            "createdAt" => $user->getCreatedAt(),
+            "updatedAt" => $user->getUpdatedAt(),
+          ],
+          "createdAt" => $product->getCreatedAt(),
+          "updatedAt" => $product->getUpdatedAt(),
+        ],
+      ];
+      return $this->createApiResponse($responseData);
+    } else {
+      $errors = $form->getErrors()->getForm();
+      $responseData = ["errors" => $errors];
+      return $this->createApiResponse($responseData, 400);
+    }
+  }
+
+  /**
+   * @Rest\Post("/api/products/{id}")
+   */
+  public function editAction(Request $request, Product $product) {
+    $form = $this->createForm(ProductFormType::class);
+    $form->submit($request->request->all());
+
+    if ($form->isValid()) {
+      $formData = $form->getData();
+
+      /**
+       * @var Product $product
+       */
+      if ($formData->getName()) $product->setName($formData->getName());
+      if ($formData->getPrice()) $product->setPrice($formData->getPrice());
+      if ($formData->getDescription()) $product->setDescription($formData->getDescription());
+      if ($formData->getColor()) $product->setColor($formData->getColor());
+      if ($formData->getYear()) $product->setYear($formData->getYear());
+      if ($request->files->get('image')) {
+        $this->get('app.image')->remove($product->getImage());
         $product->setImage($request->files->get('image'));
       }
 
