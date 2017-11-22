@@ -17,3 +17,7 @@
 ### User switch
 http://symfony-base.com//admin/item?_switch_user=asdalexey%2b5@yandex.ru
 http://symfony-base.com//admin/item?_switch_user=_exit
+
+#### Generate private key(https://knpuniversity.com/screencast/symfony-rest4/lexikjwt-authentication-bundle)
+- mkdir var/jwt
+- openssl genrsa -out var/jwt/private.pem -aes256 4096
