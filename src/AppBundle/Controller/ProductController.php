@@ -11,19 +11,24 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 class ProductController extends BaseController {
   const LIMIT = 5;
   const OFFSET = 0;
+  const ORDER_BY = 'createdAt';
+  const DIRECTION = 'ASC';
 
   /**
    * @Rest\Get("/api/products")
    */
   public function index(Request $request) {
+    $query = $request->query->all();
     $em = $this->getDoctrine()->getManager();
 
     /**
      * @var User $user
      */
     $user = $this->getUser();
+    $offset = isset($query['offset']) ? $query['offset'] : self::OFFSET;
+    $limit = isset($query['limit']) ? $query['limit'] : self::LIMIT;
     $products = $em->getRepository('AppBundle:Product')
-                   ->findBy(["user" => $user], ['createdAt' => 'ASC'], self::LIMIT, self::OFFSET);
+                   ->findBy(["user" => $user], ['createdAt' => 'ASC'], $limit, $offset);
     return $this->createApiResponse(["data" => $products]);
   }
 
@@ -142,7 +147,9 @@ class ProductController extends BaseController {
   /**
    * @Rest\Post("/api/products/{id}")
    */
-  public function update(Request $request, Product $product) {
+  public function update(Request $request,
+                         Product $product
+  ) {
     $form = $this->createForm(ProductFormType::class);
     $form->submit($request->request->all());
 
