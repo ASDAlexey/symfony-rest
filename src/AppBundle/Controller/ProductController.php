@@ -20,11 +20,18 @@ class ProductController extends BaseController {
   public function index(Request $request) {
     $query = $request->query->all();
     $em = $this->getDoctrine()->getManager();
+    $errors = [];
 
     /**
      * @var User $user
      */
     $user = $this->getUser();
+
+    // validation query
+    if (isset($query['offset']) && !is_numeric($query['offset'])) $errors['offset'] = 'offset should be number';
+    if (isset($query['limit']) && !is_numeric($query['limit'])) $errors['limit'] = 'limit should be number';
+    if (!empty($errors)) return $this->createApiResponse(["errors" => $errors]);
+
     $offset = isset($query['offset']) ? $query['offset'] : self::OFFSET;
     $limit = isset($query['limit']) ? $query['limit'] : self::LIMIT;
     $products = $em->getRepository('AppBundle:Product')
