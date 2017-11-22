@@ -36,7 +36,7 @@ class ProductController extends BaseController {
     $limit = isset($query['limit']) ? $query['limit'] : self::LIMIT;
     $repository = $em->getRepository('AppBundle:Product');
     $params = ["user" => $user];
-    $products = $repository->findBy($params, ['createdAt' => 'ASC'], $limit, $offset);
+    $products = $repository->findBy($params, [self::ORDER_BY => self::DIRECTION], $limit, $offset);
     $count = count($repository->findBy($params));
     return $this->createApiResponse(["data" => $products, "meta" => ["count" => $count]]);
   }
