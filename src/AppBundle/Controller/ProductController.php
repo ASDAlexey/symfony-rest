@@ -34,9 +34,11 @@ class ProductController extends BaseController {
 
     $offset = isset($query['offset']) ? $query['offset'] : self::OFFSET;
     $limit = isset($query['limit']) ? $query['limit'] : self::LIMIT;
-    $products = $em->getRepository('AppBundle:Product')
-                   ->findBy(["user" => $user], ['createdAt' => 'ASC'], $limit, $offset);
-    return $this->createApiResponse(["data" => $products]);
+    $repository = $em->getRepository('AppBundle:Product');
+    $params = ["user" => $user];
+    $products = $repository->findBy($params, ['createdAt' => 'ASC'], $limit, $offset);
+    $count = count($repository->findBy($params));
+    return $this->createApiResponse(["data" => $products, "meta" => ["count" => $count]]);
   }
 
   /**
