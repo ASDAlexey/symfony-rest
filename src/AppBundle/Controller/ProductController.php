@@ -6,30 +6,31 @@ use AppBundle\Entity\Product;
 use AppBundle\Entity\User;
 use AppBundle\Form\ProductFormType;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
 class ProductController extends BaseController {
-  /**
-   * @Route("/api/products", name="product_list")
-   * @Method("GET")
-   */
-  public function listAction(Request $request) {
-    $response = $this->createApiResponse([
-      'data' => [
-        'name' => 'Products',
-      ],
-      'meta' => null,
-    ], 200);
+  const LIMIT = 5;
+  const OFFSET = 0;
 
-    return $response;
+  /**
+   * @Rest\Get("/api/products")
+   */
+  public function index(Request $request) {
+    $em = $this->getDoctrine()->getManager();
+
+    /**
+     * @var User $user
+     */
+    $user = $this->getUser();
+    $products = $em->getRepository('AppBundle:Product')
+                   ->findBy(["user" => $user], ['createdAt' => 'ASC'], self::LIMIT, self::OFFSET);
+    return $this->createApiResponse(["data" => $products]);
   }
 
   /**
    * @Rest\Get("/api/products/{id}")
    */
-  public function showAction($id) {
+  public function show($id) {
     $em = $this->getDoctrine()->getManager();
     /**
      * @var Product $product
@@ -39,35 +40,37 @@ class ProductController extends BaseController {
     /**
      * @var User $user
      */
-    $user = $product->getUser();
+    if ($product) {
+      $user = $product->getUser();
 
-    $responseData = [
-      "data" => [
-        "id" => $product->getId(),
-        "name" => $product->getName(),
-        "price" => $product->getPrice(),
-        "description" => $product->getDescription(),
-        "color" => $product->getColor(),
-        "year" => $product->getYear(),
-        "image" => $product->getImage(),
-        "user" => [
-          "id" => $user->getId(),
-          "email" => $user->getEmail(),
-          "roles" => $user->getRoles(),
-          "createdAt" => $user->getCreatedAt(),
-          "updatedAt" => $user->getUpdatedAt(),
+      $responseData = [
+        "data" => [
+          "id" => $product->getId(),
+          "name" => $product->getName(),
+          "price" => $product->getPrice(),
+          "description" => $product->getDescription(),
+          "color" => $product->getColor(),
+          "year" => $product->getYear(),
+          "image" => $product->getImage(),
+          "user" => [
+            "id" => $user->getId(),
+            "email" => $user->getEmail(),
+            "roles" => $user->getRoles(),
+            "createdAt" => $user->getCreatedAt(),
+            "updatedAt" => $user->getUpdatedAt(),
+          ],
+          "createdAt" => $product->getCreatedAt(),
+          "updatedAt" => $product->getUpdatedAt(),
         ],
-        "createdAt" => $product->getCreatedAt(),
-        "updatedAt" => $product->getUpdatedAt(),
-      ],
-    ];
-    return $this->createApiResponse($responseData);
+      ];
+      return $this->createApiResponse($responseData);
+    } else return $this->createApiResponse(["meta" => ["errors" => "Not found"]], 404);
   }
 
   /**
    * @Rest\Post("/api/products")
    */
-  public function newAction(Request $request) {
+  public function create(Request $request) {
     $form = $this->createForm(ProductFormType::class);
     $form->submit($request->request->all());
 
@@ -139,7 +142,7 @@ class ProductController extends BaseController {
   /**
    * @Rest\Post("/api/products/{id}")
    */
-  public function editAction(Request $request, Product $product) {
+  public function update(Request $request, Product $product) {
     $form = $this->createForm(ProductFormType::class);
     $form->submit($request->request->all());
 
@@ -206,5 +209,18 @@ class ProductController extends BaseController {
       $responseData = ["errors" => $errors];
       return $this->createApiResponse($responseData, 400);
     }
+  }
+
+  /**
+   * @Rest\Delete("/api/products/{id}")
+   */
+  public function destroy(Product $product) {
+    if (!$product) throw $this->createNotFoundException('No product found');
+
+    $em = $this->getDoctrine()->getManager();
+    $em->remove($product);
+    $em->flush();
+
+    return $this->createApiResponse(["data" => "The product was deleted"]);
   }
 }
