@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\User;
 use AppBundle\Form\LoginForm;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -22,6 +23,10 @@ class SecurityController extends BaseController {
       $formData = $form->getData();
 
       $em = $this->getDoctrine()->getManager();
+
+      /**
+       * @var User $user
+       */
       $user = $em->getRepository('AppBundle:User')->findOneBy(['email' => $formData['email']]);
       if ($user) {
         $isValid = $this->get('security.password_encoder')->isPasswordValid($user, $formData['password']);
