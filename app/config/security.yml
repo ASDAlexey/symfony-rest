@@ -8,7 +8,7 @@ security:
 
     firewalls:
         api:
-          pattern:   ^/api
+          pattern:   ^/
           provider:  database_users
           stateless: true
           anonymous: true
