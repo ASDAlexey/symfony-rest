@@ -46,7 +46,15 @@ class UserController extends BaseController {
         'exp' => time() + 3600 * 24 * 2 // 2 days expiration
       ]);
 
-      $responseData = ["data" => $user, "meta" => ["token" => $token]];
+      $responseData = [
+        "data" => [
+          "id" => $user->getId(),
+          "email" => $user->getEmail(),
+          "createdAt" => $user->getCreatedAt(),
+          "updatedAt" => $user->getUpdatedAt(),
+        ],
+        "meta" => ["token" => $token]
+      ];
     } else {
       $errors = $form->getErrors()->getForm();
       $responseData = ["errors" => $errors];
