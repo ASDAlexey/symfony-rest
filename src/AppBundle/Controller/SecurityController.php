@@ -31,7 +31,7 @@ class SecurityController extends BaseController {
       if ($user) {
         $isValid = $this->get('security.password_encoder')->isPasswordValid($user, $formData['password']);
         if (!$isValid) {
-          $responseData = ["meta" => ["errors" => 'Unauthorized']];
+          $responseData = ["errors" => 'Unauthorized'];
           return $this->createApiResponse($responseData, 401);
         }
 
@@ -52,7 +52,7 @@ class SecurityController extends BaseController {
         ];
         return $this->createApiResponse($responseData);
       } else {
-        $responseData = ["meta" => ["errors" => 'Unauthorized']];
+        $responseData = ["errors" => 'Unauthorized'];
         return $this->createApiResponse($responseData, 401);
       }
     } else {
