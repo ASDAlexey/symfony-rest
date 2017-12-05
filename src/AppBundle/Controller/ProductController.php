@@ -55,29 +55,7 @@ class ProductController extends BaseController {
      * @var User $user
      */
     if ($product) {
-      $user = $product->getUser();
-
-      $responseData = [
-        "data" => [
-          "id" => $product->getId(),
-          "name" => $product->getName(),
-          "price" => $product->getPrice(),
-          "description" => $product->getDescription(),
-          "color" => $product->getColor(),
-          "year" => $product->getYear(),
-          "image" => $product->getImage(),
-          "user" => [
-            "id" => $user->getId(),
-            "email" => $user->getEmail(),
-            "roles" => $user->getRoles(),
-            "createdAt" => $user->getCreatedAt(),
-            "updatedAt" => $user->getUpdatedAt(),
-          ],
-          "createdAt" => $product->getCreatedAt(),
-          "updatedAt" => $product->getUpdatedAt(),
-        ],
-      ];
-      return $this->createApiResponse($responseData);
+      return $this->createApiResponse($product);
     } else return $this->createApiResponse(["meta" => ["errors" => "Not found"]], 404);
   }
 
@@ -120,32 +98,7 @@ class ProductController extends BaseController {
       $em->persist($product);
       $em->flush();
 
-      /**
-       * @var User $user
-       */
-      $user = $product->getUser();
-
-      $responseData = [
-        "data" => [
-          "id" => $product->getId(),
-          "name" => $product->getName(),
-          "price" => $product->getPrice(),
-          "description" => $product->getDescription(),
-          "color" => $product->getColor(),
-          "year" => $product->getYear(),
-          "image" => $product->getImage(),
-          "user" => [
-            "id" => $user->getId(),
-            "email" => $user->getEmail(),
-            "roles" => $user->getRoles(),
-            "createdAt" => $user->getCreatedAt(),
-            "updatedAt" => $user->getUpdatedAt(),
-          ],
-          "createdAt" => $product->getCreatedAt(),
-          "updatedAt" => $product->getUpdatedAt(),
-        ],
-      ];
-      return $this->createApiResponse($responseData);
+      return $this->createApiResponse($product);
     } else {
       $errors = $form->getErrors()->getForm();
       $responseData = ["errors" => $errors];
@@ -194,32 +147,7 @@ class ProductController extends BaseController {
       $em->persist($product);
       $em->flush();
 
-      /**
-       * @var User $user
-       */
-      $user = $product->getUser();
-
-      $responseData = [
-        "data" => [
-          "id" => $product->getId(),
-          "name" => $product->getName(),
-          "price" => $product->getPrice(),
-          "description" => $product->getDescription(),
-          "color" => $product->getColor(),
-          "year" => $product->getYear(),
-          "image" => $product->getImage(),
-          "user" => [
-            "id" => $user->getId(),
-            "email" => $user->getEmail(),
-            "roles" => $user->getRoles(),
-            "createdAt" => $user->getCreatedAt(),
-            "updatedAt" => $user->getUpdatedAt(),
-          ],
-          "createdAt" => $product->getCreatedAt(),
-          "updatedAt" => $product->getUpdatedAt(),
-        ],
-      ];
-      return $this->createApiResponse($responseData);
+      return $this->createApiResponse($product);
     } else {
       $errors = $form->getErrors()->getForm();
       $responseData = ["errors" => $errors];
