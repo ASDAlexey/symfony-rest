@@ -31,7 +31,8 @@ class UserController extends BaseController {
        */
       $user = new User();
       $user->setEmail($formData->getEmail());
-      $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $formData->getPlainPassword());
+      $encodedPassword = $this->container->get('security.password_encoder')
+                                         ->encodePassword($user, $formData->getPlainPassword());
       $user->setPassword($encodedPassword);
       $user->setRoles(['ROLE_ADMIN']);
       $user->setCreatedAt();
@@ -46,15 +47,7 @@ class UserController extends BaseController {
         'exp' => time() + 3600 * 24 * 2 // 2 days expiration
       ]);
 
-      $responseData = [
-        "data" => [
-          "id" => $user->getId(),
-          "email" => $user->getEmail(),
-          "createdAt" => $user->getCreatedAt(),
-          "updatedAt" => $user->getUpdatedAt(),
-        ],
-        "meta" => ["token" => $token]
-      ];
+      $responseData = ["data" => $user, "meta" => ["token" => $token]];
     } else {
       $errors = $form->getErrors()->getForm();
       $responseData = ["errors" => $errors];

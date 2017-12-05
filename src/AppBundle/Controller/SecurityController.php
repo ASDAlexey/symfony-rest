@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
 class SecurityController extends BaseController {
-
   /**
    * @Rest\Post("/api/login")
    * {
@@ -43,15 +42,7 @@ class SecurityController extends BaseController {
           'exp' => time() + 3600 * 24 * 2 // 2 days expiration
         ]);
 
-        $responseData = [
-          "data" => [
-            "id" => $user->getId(),
-            "email" => $user->getEmail(),
-            "createdAt" => $user->getCreatedAt(),
-            "updatedAt" => $user->getUpdatedAt(),
-          ],
-          "meta" => ["token" => $token]
-        ];
+        $responseData = ["data" => $user, "meta" => ["token" => $token]];
         return $this->createApiResponse($responseData);
       } else {
         $responseData = ["errors" => 'Unauthorized'];
@@ -96,12 +87,7 @@ class SecurityController extends BaseController {
         ]);
 
         $responseData = [
-          "data" => [
-            "id" => $user->getId(),
-            "email" => $user->getEmail(),
-            "createdAt" => $user->getCreatedAt(),
-            "updatedAt" => $user->getUpdatedAt(),
-          ],
+          "data" => $user,
           "meta" => ["token" => $token]
         ];
         return $this->createApiResponse($responseData);
