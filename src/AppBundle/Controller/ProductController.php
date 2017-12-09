@@ -12,7 +12,7 @@ class ProductController extends BaseController {
   const LIMIT = 5;
   const OFFSET = 0;
   const ORDER_BY = 'createdAt';
-  const DIRECTION = 'ASC';
+  const DIRECTION = 'DESC';
 
   /**
    * @Rest\Get("/api/products")
@@ -80,15 +80,18 @@ class ProductController extends BaseController {
       $product->setYear($formData->getYear());
       if ($request->files->get('image')) {
         $product->setImage($request->files->get('image'));
-      }
 
-      // $file stores the uploaded file
-      $file = $product->getImage();
-      if ($file) {
-        $fileName = $this->get('app.image')->move($file);
+        // $file stores the uploaded file
+        $file = $product->getImage();
+        if ($file) {
+          $fileName = $this->get('app.image')->move($file);
 
-        // update the 'image' property to store file name
-        $product->setImage($fileName);
+          // update the 'image' property to store file name
+          $product->setImage($fileName);
+        }
+      } else {
+        if ($product->getImage()) $this->get('app.image')->remove($product->getImage());
+        $product->setImage(null);
       }
 
       $product->setUser($this->getUser());
@@ -111,9 +114,12 @@ class ProductController extends BaseController {
    */
   public function update(Request $request,
                          Product $product
-  ) {
+  )
+  {
+    $req = $request->request->all();
+    if (!$request->files->get('image') && $req['image']) unset($req['image']);
     $form = $this->createForm(ProductFormType::class);
-    $form->submit($request->request->all());
+    $form->submit($req);
 
     if ($form->isValid()) {
       $formData = $form->getData();
@@ -127,17 +133,23 @@ class ProductController extends BaseController {
       if ($formData->getColor()) $product->setColor($formData->getColor());
       if ($formData->getYear()) $product->setYear($formData->getYear());
       if ($request->files->get('image')) {
-        $this->get('app.image')->remove($product->getImage());
+        if ($product->getImage()) $this->get('app.image')->remove($product->getImage());
         $product->setImage($request->files->get('image'));
-      }
 
-      // $file stores the uploaded file
-      $file = $product->getImage();
-      if ($file) {
-        $fileName = $this->get('app.image')->move($file);
 
-        // update the 'image' property to store file name
-        $product->setImage($fileName);
+        // $file stores the uploaded file
+        $file = $product->getImage();
+        if ($file) {
+          $fileName = $this->get('app.image')->move($file);
+
+          // update the 'image' property to store file name
+          $product->setImage($fileName);
+        }
+      } else {
+        if (!$req['image']) {
+          if ($product->getImage()) $this->get('app.image')->remove($product->getImage());
+          $product->setImage(null);
+        }
       }
 
       $product->setUser($this->getUser());
