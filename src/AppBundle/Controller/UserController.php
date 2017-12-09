@@ -48,11 +48,11 @@ class UserController extends BaseController {
       ]);
 
       $responseData = ["data" => $user, "meta" => ["token" => $token]];
+      return $this->createApiResponse($responseData);
     } else {
       $errors = $form->getErrors()->getForm();
       $responseData = ["errors" => $errors];
+      return $this->createApiResponse($responseData, 400);
     }
-
-    return $this->createApiResponse($responseData);
   }
 }
