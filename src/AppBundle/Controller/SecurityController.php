@@ -2,12 +2,13 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\User;
+use AppBundle\Form\AutoLoginForm;
 use AppBundle\Form\LoginForm;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
 class SecurityController extends BaseController {
-
   /**
    * @Rest\Post("/api/login")
    * {
@@ -22,11 +23,16 @@ class SecurityController extends BaseController {
       $formData = $form->getData();
 
       $em = $this->getDoctrine()->getManager();
+
+      /**
+       * @var User $user
+       */
       $user = $em->getRepository('AppBundle:User')->findOneBy(['email' => $formData['email']]);
       if ($user) {
-        $isValid = $this->get('security.password_encoder')->isPasswordValid($user, $formData['password']);
+        $isValid = $this->get('security.password_encoder')
+                        ->isPasswordValid($user, $formData['password']);
         if (!$isValid) {
-          $responseData = ["meta" => ["errors" => 'Unauthorized']];
+          $responseData = ["errors" => 'Unauthorized'];
           return $this->createApiResponse($responseData, 401);
         }
 
@@ -36,18 +42,57 @@ class SecurityController extends BaseController {
           'exp' => time() + 3600 * 24 * 2 // 2 days expiration
         ]);
 
+        $responseData = ["data" => $user, "meta" => ["token" => $token]];
+        return $this->createApiResponse($responseData);
+      } else {
+        $responseData = ["errors" => 'Unauthorized'];
+        return $this->createApiResponse($responseData, 401);
+      }
+    } else {
+      $errors = $form->getErrors()->getForm();
+      $responseData = ["errors" => $errors];
+      return $this->createApiResponse($responseData, 400);
+    }
+  }
+
+  /**
+   * @Rest\Post("/api/auto-login")
+   * {
+   *   "token":"token_string",
+   */
+  public function autoLogin(Request $request) {
+    $form = $this->createForm(AutoLoginForm::class);
+    $form->submit($request->request->all());
+
+    if ($form->isValid()) {
+      $formData = $form->getData();
+
+      $jwtData = $this->get('lexik_jwt_authentication.encoder')->decode($formData['token']);
+      if (!($jwtData && isset($jwtData['id']))) {
+        $responseData = ["errors" => "Invalid token"];
+        return $this->createApiResponse($responseData, 400);
+      }
+
+      $em = $this->getDoctrine()->getManager();
+
+      /**
+       * @var User $user
+       */
+      $user = $em->getRepository('AppBundle:User')->find($jwtData['id']);
+      if ($user) {
+        $token = $this->get('lexik_jwt_authentication.encoder')->encode([
+          'id' => $user->getId(),
+          'username' => $user->getEmail(),
+          'exp' => time() + 3600 * 24 * 2 // 2 days expiration
+        ]);
+
         $responseData = [
-          "data" => [
-            "id" => $user->getId(),
-            "email" => $user->getEmail(),
-            "createdAt" => $user->getCreatedAt(),
-            "updatedAt" => $user->getUpdatedAt(),
-          ],
+          "data" => $user,
           "meta" => ["token" => $token]
         ];
         return $this->createApiResponse($responseData);
       } else {
-        $responseData = ["meta" => ["errors" => 'Unauthorized']];
+        $responseData = ["errors" => 'Unauthorized'];
         return $this->createApiResponse($responseData, 401);
       }
     } else {

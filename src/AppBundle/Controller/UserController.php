@@ -31,7 +31,8 @@ class UserController extends BaseController {
        */
       $user = new User();
       $user->setEmail($formData->getEmail());
-      $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $formData->getPlainPassword());
+      $encodedPassword = $this->container->get('security.password_encoder')
+                                         ->encodePassword($user, $formData->getPlainPassword());
       $user->setPassword($encodedPassword);
       $user->setRoles(['ROLE_ADMIN']);
       $user->setCreatedAt();
@@ -47,11 +48,11 @@ class UserController extends BaseController {
       ]);
 
       $responseData = ["data" => $user, "meta" => ["token" => $token]];
+      return $this->createApiResponse($responseData);
     } else {
       $errors = $form->getErrors()->getForm();
       $responseData = ["errors" => $errors];
+      return $this->createApiResponse($responseData, 400);
     }
-
-    return $this->createApiResponse($responseData);
   }
 }

@@ -8,16 +8,18 @@ use AppBundle\Form\ProductFormType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
-class ProductController extends BaseController {
+class ProductController extends BaseController
+{
   const LIMIT = 5;
   const OFFSET = 0;
   const ORDER_BY = 'createdAt';
-  const DIRECTION = 'ASC';
+  const DIRECTION = 'DESC';
 
   /**
    * @Rest\Get("/api/products")
    */
-  public function index(Request $request) {
+  public function index(Request $request)
+  {
     $query = $request->query->all();
     $em = $this->getDoctrine()->getManager();
     $errors = [];
@@ -44,7 +46,8 @@ class ProductController extends BaseController {
   /**
    * @Rest\Get("/api/products/{id}")
    */
-  public function show($id) {
+  public function show($id)
+  {
     $em = $this->getDoctrine()->getManager();
     /**
      * @var Product $product
@@ -55,36 +58,15 @@ class ProductController extends BaseController {
      * @var User $user
      */
     if ($product) {
-      $user = $product->getUser();
-
-      $responseData = [
-        "data" => [
-          "id" => $product->getId(),
-          "name" => $product->getName(),
-          "price" => $product->getPrice(),
-          "description" => $product->getDescription(),
-          "color" => $product->getColor(),
-          "year" => $product->getYear(),
-          "image" => $product->getImage(),
-          "user" => [
-            "id" => $user->getId(),
-            "email" => $user->getEmail(),
-            "roles" => $user->getRoles(),
-            "createdAt" => $user->getCreatedAt(),
-            "updatedAt" => $user->getUpdatedAt(),
-          ],
-          "createdAt" => $product->getCreatedAt(),
-          "updatedAt" => $product->getUpdatedAt(),
-        ],
-      ];
-      return $this->createApiResponse($responseData);
+      return $this->createApiResponse($product);
     } else return $this->createApiResponse(["meta" => ["errors" => "Not found"]], 404);
   }
 
   /**
    * @Rest\Post("/api/products")
    */
-  public function create(Request $request) {
+  public function create(Request $request)
+  {
     $form = $this->createForm(ProductFormType::class);
     $form->submit($request->request->all());
 
@@ -102,15 +84,18 @@ class ProductController extends BaseController {
       $product->setYear($formData->getYear());
       if ($request->files->get('image')) {
         $product->setImage($request->files->get('image'));
-      }
 
-      // $file stores the uploaded file
-      $file = $product->getImage();
-      if ($file) {
-        $fileName = $this->get('app.image')->move($file);
+        // $file stores the uploaded file
+        $file = $product->getImage();
+        if ($file) {
+          $fileName = $this->get('app.image')->move($file);
 
-        // update the 'image' property to store file name
-        $product->setImage($fileName);
+          // update the 'image' property to store file name
+          $product->setImage($fileName);
+        }
+      } else {
+        if ($product->getImage()) $this->get('app.image')->remove($product->getImage());
+        $product->setImage(null);
       }
 
       $product->setUser($this->getUser());
@@ -120,32 +105,7 @@ class ProductController extends BaseController {
       $em->persist($product);
       $em->flush();
 
-      /**
-       * @var User $user
-       */
-      $user = $product->getUser();
-
-      $responseData = [
-        "data" => [
-          "id" => $product->getId(),
-          "name" => $product->getName(),
-          "price" => $product->getPrice(),
-          "description" => $product->getDescription(),
-          "color" => $product->getColor(),
-          "year" => $product->getYear(),
-          "image" => $product->getImage(),
-          "user" => [
-            "id" => $user->getId(),
-            "email" => $user->getEmail(),
-            "roles" => $user->getRoles(),
-            "createdAt" => $user->getCreatedAt(),
-            "updatedAt" => $user->getUpdatedAt(),
-          ],
-          "createdAt" => $product->getCreatedAt(),
-          "updatedAt" => $product->getUpdatedAt(),
-        ],
-      ];
-      return $this->createApiResponse($responseData);
+      return $this->createApiResponse($product);
     } else {
       $errors = $form->getErrors()->getForm();
       $responseData = ["errors" => $errors];
@@ -158,9 +118,15 @@ class ProductController extends BaseController {
    */
   public function update(Request $request,
                          Product $product
-  ) {
+  )
+  {
+    $req = $request->request->all();
+    if (!$request->files->get('image') && $req['image']) {
+      unset($req['image']);
+      $noUpdateImage = true;
+    }
     $form = $this->createForm(ProductFormType::class);
-    $form->submit($request->request->all());
+    $form->submit($req);
 
     if ($form->isValid()) {
       $formData = $form->getData();
@@ -174,17 +140,23 @@ class ProductController extends BaseController {
       if ($formData->getColor()) $product->setColor($formData->getColor());
       if ($formData->getYear()) $product->setYear($formData->getYear());
       if ($request->files->get('image')) {
-        $this->get('app.image')->remove($product->getImage());
+        if ($product->getImage()) $this->get('app.image')->remove($product->getImage());
         $product->setImage($request->files->get('image'));
-      }
 
-      // $file stores the uploaded file
-      $file = $product->getImage();
-      if ($file) {
-        $fileName = $this->get('app.image')->move($file);
 
-        // update the 'image' property to store file name
-        $product->setImage($fileName);
+        // $file stores the uploaded file
+        $file = $product->getImage();
+        if ($file) {
+          $fileName = $this->get('app.image')->move($file);
+
+          // update the 'image' property to store file name
+          $product->setImage($fileName);
+        }
+      } else {
+        if (!$noUpdateImage) {
+          if ($product->getImage()) $this->get('app.image')->remove($product->getImage());
+          $product->setImage(null);
+        }
       }
 
       $product->setUser($this->getUser());
@@ -194,32 +166,7 @@ class ProductController extends BaseController {
       $em->persist($product);
       $em->flush();
 
-      /**
-       * @var User $user
-       */
-      $user = $product->getUser();
-
-      $responseData = [
-        "data" => [
-          "id" => $product->getId(),
-          "name" => $product->getName(),
-          "price" => $product->getPrice(),
-          "description" => $product->getDescription(),
-          "color" => $product->getColor(),
-          "year" => $product->getYear(),
-          "image" => $product->getImage(),
-          "user" => [
-            "id" => $user->getId(),
-            "email" => $user->getEmail(),
-            "roles" => $user->getRoles(),
-            "createdAt" => $user->getCreatedAt(),
-            "updatedAt" => $user->getUpdatedAt(),
-          ],
-          "createdAt" => $product->getCreatedAt(),
-          "updatedAt" => $product->getUpdatedAt(),
-        ],
-      ];
-      return $this->createApiResponse($responseData);
+      return $this->createApiResponse($product);
     } else {
       $errors = $form->getErrors()->getForm();
       $responseData = ["errors" => $errors];
@@ -230,7 +177,8 @@ class ProductController extends BaseController {
   /**
    * @Rest\Delete("/api/products/{id}")
    */
-  public function destroy(Product $product) {
+  public function destroy(Product $product)
+  {
     if (!$product) throw $this->createNotFoundException('No product found');
 
     $em = $this->getDoctrine()->getManager();

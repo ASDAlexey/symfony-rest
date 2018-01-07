@@ -21,3 +21,4 @@ http://symfony-base.com//admin/item?_switch_user=_exit
 #### Generate private key(https://knpuniversity.com/screencast/symfony-rest4/lexikjwt-authentication-bundle)
 - mkdir var/jwt
 - openssl genrsa -out var/jwt/private.pem -aes256 4096
+- openssl rsa -pubout -in var/jwt/private.pem -out var/jwt/public.pem

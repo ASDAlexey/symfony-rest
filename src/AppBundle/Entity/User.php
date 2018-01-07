@@ -8,17 +8,20 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="user")
  * @UniqueEntity(fields={"email"}, message="Email already in use")
+ * @JMS\ExclusionPolicy("all")
  */
 class User implements UserInterface {
   /**
    * @ORM\Id
    * @ORM\GeneratedValue(strategy="AUTO")
    * @ORM\Column(type="integer")
+   * @JMS\Expose
    */
   private $id;
 
@@ -26,6 +29,7 @@ class User implements UserInterface {
    * @Assert\NotBlank()
    * @Assert\Email()
    * @ORM\Column(type="string", unique=true)
+   * @JMS\Expose
    */
   private $email;
 
@@ -51,19 +55,17 @@ class User implements UserInterface {
 
   /**
    * created Time/Date
-   *
    * @var \DateTime
-   *
    * @ORM\Column(name="created_at", type="datetime", nullable=false)
+   * @JMS\Expose
    */
   protected $createdAt;
 
   /**
    * updated Time/Date
-   *
    * @var \DateTime
-   *
    * @ORM\Column(name="updated_at", type="datetime", nullable=false)
+   * @JMS\Expose
    */
   protected $updatedAt;
 
